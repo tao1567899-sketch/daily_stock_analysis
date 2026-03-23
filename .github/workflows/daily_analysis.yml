@@ -57,13 +57,13 @@ jobs:
       - name: 启动心跳通知
         if: github.event_name == 'schedule'
         run: |
-          echo "⏰ 定时任务触发，开始执行股票分析"
+          echo "[TIME] 定时任务触发，开始执行股票分析"
           if [ -n "$FEISHU_WEBHOOK_URL" ]; then
             BEAT_TIME=$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S')
             curl -s -X POST "$FEISHU_WEBHOOK_URL" \
               -H "Content-Type: application/json" \
-              -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"⏰ 股票分析任务已启动，时间：${BEAT_TIME}，请等待分析报告...\"}}" \
-              > /dev/null && echo "✅ 心跳通知已发送" || echo "⚠️ 心跳通知发送失败"
+              -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"[TIME] 股票分析任务已启动，时间：${BEAT_TIME}，请等待分析报告...\"}}" \
+              > /dev/null && echo "[OK] 心跳通知已发送" || echo "[WARN] 心跳通知发送失败"
           fi
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
@@ -162,13 +162,13 @@ jobs:
         if: always()
         run: |
           echo "=========================================="
-          echo "📊 分析完成"
+          echo "[INFO] 分析完成"
           echo "=========================================="
           if [ -d "reports" ] && [ "$(ls -A reports 2>/dev/null)" ]; then
             echo "生成的报告:"
             ls -la reports/
           else
-            echo "⚠️ 未生成报告文件"
+            echo "[WARN] 未生成报告文件"
           fi
 
       - name: 保持仓库活跃（定时任务）
