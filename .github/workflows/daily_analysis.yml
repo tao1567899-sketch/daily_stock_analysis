@@ -56,7 +56,32 @@ jobs:
       - name: 创建必要目录
         run: |
           mkdir -p data logs reports
-      
+
+      # ============================================================
+      # ⬇️ 新增：启动心跳通知（确认定时任务有触发）
+      # ============================================================
+      - name: 启动心跳通知
+        if: github.event_name == 'schedule'
+        run: |
+          echo "⏰ 定时任务触发，开始执行股票分析"
+          # 飞书 Webhook 心跳通知
+          if [ -n "$FEISHU_WEBHOOK_URL" ]; then
+            BEAT_TIME=$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S')
+            PAYLOAD=$(cat <<EOF
+            {
+              "msg_type": "text",
+              "content": {
+                "text": "⏰ 股票分析任务已启动\n时间：${BEAT_TIME}\n触发方式：定时调度\n请等待分析报告..."
+              }
+            }
+EOF)
+            curl -s -X POST "$FEISHU_WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d "$PAYLOAD" > /dev/null && echo "✅ 心跳通知已发送" || echo "⚠️ 心跳通知发送失败"
+          fi
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+
       - name: 执行股票分析
         env:
           # ==========================================
