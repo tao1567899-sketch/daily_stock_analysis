@@ -1,9 +1,7 @@
 name: 每日股票分析
 
 on:
-  schedule:
-    - cron: '50 0 * * 1-5'     
-    - cron: '0 10 * * 1-5'     
+  # schedule removed – now triggered manually via OpenClaw
   workflow_dispatch:
     inputs:
       mode:
